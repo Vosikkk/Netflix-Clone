@@ -9,7 +9,7 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
-    let sectionTitles: [String] = ["Trending Movies", "Popular", "Trending TV", "Upcoming Movies", "Top Rated"]
+    let sectionTitles: [String] = ["Trending Movies", "Trending TV", "Popular", "Upcoming Movies", "Top Rated"]
     
     
     private let homeFeedTable: UITableView = {
@@ -32,7 +32,7 @@ class HomeViewController: UIViewController {
        
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeFeedTable.tableHeaderView = headerView
-        getTrendingMovies()
+        fetchData()
     }
     
     override func viewDidLayoutSubviews() {
@@ -52,15 +52,22 @@ class HomeViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .white
     }
     
-    private func getTrendingMovies() {
-        APICaller.shared.getTrendingMovies { results in
-            switch results {
-            case .success(let movies):
-                print(movies)
-            case .failure(let error):
-                print(error)
-            }
+    private func fetchData() {
+
+        APICaller.shared.getTopRated { re in
+            print(re)
         }
+        
+        
+        
+        //        APICaller.shared.getTrendingMovies { results in
+//            switch results {
+//            case .success(let movies):
+//                print(movies)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
 //        APICaller.shared.getTrandingMoviesByAnotherWay { data, error in
 //            if let data = data {
 //                let results = TrendingMoviesResponse(json: data)
@@ -103,12 +110,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else { return }
         var content = header.defaultContentConfiguration()
-        content.textProperties.font = .systemFont(ofSize: 18, weight: .semibold)
-        content.text = sectionTitles[section]
-        content.textProperties.color = .white
-       
-       // content.directionalLayoutMargins = .init(top: 0.0, leading: 0.0, bottom: 0.0, trailing: 30.0)
+        content.secondaryText = sectionTitles[section].capitalizeFirstLetter()
+        content.secondaryTextProperties.font = .systemFont(ofSize: 18, weight: .semibold)
+        content.directionalLayoutMargins = .init(top: 0, leading: 0, bottom: 5, trailing: 0)
+        content.secondaryTextProperties.color = .white
         header.contentConfiguration = content
+        
+        
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
