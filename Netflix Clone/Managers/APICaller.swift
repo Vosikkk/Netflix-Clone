@@ -10,19 +10,28 @@ import Foundation
 struct Constants {
     static let headers = [
         "accept": "application/json",
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ZDA3ZDFiNTk2MmM0M2UwZmFmNmFlNjM3MGI3OGIwMSIsInN1YiI6IjY1MTgwZDJjMDcyMTY2MDEzOWM1M2Y1ZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._RJHpNwQ5bfgRo2oW0LSqESDEOyiAh6EBYCAMEYbZxo"
+        "Authorization": "Bearer \(getAuthToken())"
     ]
-    static let API_KEY = "5d07d1b5962c43e0faf6ae6370b78b01"
+   
     static let httpMethod = "GET"
+    
+    static func getAuthToken() -> String {
+           guard let authToken = ProcessInfo.processInfo.environment["MY_API_TOKEN"] else {
+               fatalError("Token not found in environment variables")
+           }
+           return authToken
+       }
 }
 
 enum APIError: Error {
-    
+    case failedToGetData
 }
 
 class APICaller {
     
     static let shared = APICaller()
+    
+   
     
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
        
@@ -43,7 +52,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(error))
+                completion(.failure(APIError.failedToGetData))
             }
         }
         
@@ -70,7 +79,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(error))
+                completion(.failure(APIError.failedToGetData))
             }
         }
         
@@ -98,7 +107,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(error))
+                completion(.failure(APIError.failedToGetData))
             }
         }
         
@@ -123,7 +132,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(error))
+                completion(.failure(APIError.failedToGetData))
             }
         }
         
@@ -148,7 +157,7 @@ class APICaller {
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
                 completion(.success(results.results))
             } catch {
-                completion(.failure(error))
+                completion(.failure(APIError.failedToGetData))
             }
         }
         
@@ -158,7 +167,7 @@ class APICaller {
     
     
     
-  //"https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1"
+ 
     
     
     
