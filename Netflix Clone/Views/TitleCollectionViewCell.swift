@@ -6,6 +6,9 @@
 //
 
 import UIKit
+import SDWebImage
+
+
 
 class TitleCollectionViewCell: UICollectionViewCell {
     
@@ -26,5 +29,19 @@ class TitleCollectionViewCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        posterImageView.frame = contentView.bounds
+    }
+    
+    public func configure(with model: String){
+        guard let url = URL(string: Constants.DefaultURL + model) else { return }
+        posterImageView.sd_setImage(with: url)
+    }
+    
+    struct Constants {
+        static let DefaultURL = "https://image.tmdb.org/t/p/w500"
     }
 }
