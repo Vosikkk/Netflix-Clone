@@ -21,6 +21,10 @@ struct Constants {
            }
            return authToken
        }
+    
+  
+    static let DefaultURL = "https://image.tmdb.org/t/p/w500"
+    
 }
 
 enum APIError: Error {

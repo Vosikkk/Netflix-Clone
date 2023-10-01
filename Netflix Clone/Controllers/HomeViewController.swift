@@ -148,8 +148,6 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         content.directionalLayoutMargins = .init(top: 0, leading: 0, bottom: 5, trailing: 0)
         content.secondaryTextProperties.color = .white
         header.contentConfiguration = content
-        
-        
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -157,5 +155,4 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         let offset = scrollView.contentOffset.y + defaultOffset
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
     }
-    
 }

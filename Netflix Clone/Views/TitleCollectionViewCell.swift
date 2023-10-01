@@ -41,7 +41,4 @@ class TitleCollectionViewCell: UICollectionViewCell {
         posterImageView.sd_setImage(with: url)
     }
     
-    struct Constants {
-        static let DefaultURL = "https://image.tmdb.org/t/p/w500"
-    }
 }
