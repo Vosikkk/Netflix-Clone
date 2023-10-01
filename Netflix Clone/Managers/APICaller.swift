@@ -21,9 +21,16 @@ struct Constants {
            }
            return authToken
        }
+    static func getAPIKey() -> String {
+        guard let APIKey = ProcessInfo.processInfo.environment["API_KEY"] else {
+            fatalError("Api key not found in environment variables")
+        }
+        return APIKey
+    }
     
-  
-    static let DefaultURL = "https://image.tmdb.org/t/p/w500"
+    static let baseImageURL = "https://image.tmdb.org/t/p/w500"
+    
+    static let baseURL = "https://api.themoviedb.org/3/"
     
 }
 
@@ -39,7 +46,7 @@ class APICaller {
     
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
        
-        let urlString = "https://api.themoviedb.org/3/trending/all/day?language=en-US"
+        let urlString = "\(Constants.baseURL)trending/all/day?language=en-US"
         
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
@@ -66,7 +73,7 @@ class APICaller {
     
     func getTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void) {
     
-        let urlString = "https://api.themoviedb.org/3/trending/tv/day?language=en-US"
+        let urlString = "\(Constants.baseURL)trending/tv/day?language=en-US"
         
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
@@ -95,7 +102,7 @@ class APICaller {
     
     func getUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         
-        let urlString = "https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1"
+        let urlString = "\(Constants.baseURL)movie/upcoming?language=en-US&page=1"
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
             return
@@ -120,7 +127,7 @@ class APICaller {
     
     func getPopular(completion: @escaping (Result<[Title], Error>) -> Void) {
         
-        let urlString = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
+        let urlString = "\(Constants.baseURL)movie/popular?language=en-US&page=1"
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
             return
@@ -145,7 +152,7 @@ class APICaller {
     
     func getTopRated(completion: @escaping (Result<[Title], Error>) -> Void) {
         
-        let urlString = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1"
+        let urlString = "\(Constants.baseURL)movie/top_rated?language=en-US&page=1"
         guard let url = URL(string: urlString) else {
             completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
             return
@@ -168,37 +175,48 @@ class APICaller {
         task.resume()
     }
     
+   
+    func getDiscoverMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+        let urlString = "\(Constants.baseURL)discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
+        guard let url = URL(string: urlString) else {
+            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = Constants.httpMethod
+        request.allHTTPHeaderFields = Constants.headers
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else { return }
+            do {
+                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
+                completion(.success(results.results))
+            } catch {
+                completion(.failure(APIError.failedToGetData))
+            }
+        }
+        
+        task.resume()
+    }
     
-    
-    
- 
-    
-    
-    
-//    func getTrandingMoviesByAnotherWay(completion: @escaping (Data?, Error?) -> Void) {
-//        let headers = [
-//             "accept": "application/json",
-//             "Authorization": "Bearer \(Constants.TOKEN)"
-//        ]
-//        let urlString = "https://api.themoviedb.org/3/trending/all/day?language=en-US"
-//        guard let url = URL(string: urlString) else {
-//            completion(nil, NSError(domain: "Invalid URL", code: 0))
-//            return
-//        }
-//        var request = URLRequest(url: url)
-//        request.httpMethod = "GET"
-//        request.allHTTPHeaderFields = headers
-//        let task = URLSession.shared.dataTask(with: request) { data, response , error in
-//            if (error != nil) {
-//                print(error as Any)
-//              } else {
-//                let httpResponse = response as? HTTPURLResponse
-//                print(httpResponse!)
-//                completion(data,nil)
-//              }
-//        }
-//
-//        task.resume()
-//    }
-    
+    func search(with query: String, completion: @escaping (Result<[Title], Error>) -> Void) {
+        guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return }
+        guard let url = URL(string:"\(Constants.baseURL)search/movie?query=\(query)&api_key=\(Constants.getAPIKey())") else {
+            return
+        }
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            do {
+                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
+                completion(.success(results.results))
+            } catch {
+                completion(.failure(APIError.failedToGetData))
+            }
+        }
+        task.resume()
+        
+    }
 }

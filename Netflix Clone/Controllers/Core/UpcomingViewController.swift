@@ -14,7 +14,6 @@ class UpcomingViewController: UIViewController {
     private let upcomingTable: UITableView = {
         let tableView = UITableView()
         tableView.register(TitleTableViewCell.self, forCellReuseIdentifier: TitleTableViewCell.identifier)
-        
         return tableView
     }()
     
