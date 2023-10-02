@@ -8,13 +8,14 @@
 import UIKit
 
 class SearchResultsViewController: UIViewController {
-  //  view.window?.windowScene?.screen.bounds.width / 3 - 10
-   // UIScreen.main.bounds.width / 3 - 10
+  
     public var titles: [Title] = [Title]()
     
-    public let searchResultsCollectionView: UICollectionView = {
+    public lazy var searchResultsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: UIScreen.main.bounds.width / 3 - 10, height: 200)
+        if let screenWidth = UIScreen.current?.bounds.width {
+            layout.itemSize = CGSize(width: screenWidth  / 3 - 10 , height: 200)
+        }
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(TitleCollectionViewCell.self, forCellWithReuseIdentifier: TitleCollectionViewCell.identifier)
@@ -28,12 +29,14 @@ class SearchResultsViewController: UIViewController {
         view.addSubview(searchResultsCollectionView)
         searchResultsCollectionView.delegate = self
         searchResultsCollectionView.dataSource = self
+        
     }
     
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         searchResultsCollectionView.frame = view.bounds
+        
     }
     
 }
@@ -50,6 +53,4 @@ extension SearchResultsViewController: UICollectionViewDelegate, UICollectionVie
         cell.configure(with: title.poster_path ?? "")
         return cell
     }
-    
-    
 }

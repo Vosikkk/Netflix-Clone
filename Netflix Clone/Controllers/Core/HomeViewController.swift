@@ -35,7 +35,9 @@ class HomeViewController: UIViewController {
         
         configureNavigatorBar()
         
-       
+        APICaller.shared.getMovie(with: "Harry Potter") { results in
+            //
+        }
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeFeedTable.tableHeaderView = headerView
        

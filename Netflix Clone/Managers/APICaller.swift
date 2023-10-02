@@ -13,8 +13,6 @@ struct Constants {
         "Authorization": "Bearer \(getAuthToken())"
     ]
    
-    static let httpMethod = "GET"
-    
     static func getAuthToken() -> String {
            guard let authToken = ProcessInfo.processInfo.environment["MY_API_TOKEN"] else {
                fatalError("Token not found in environment variables")
@@ -28,10 +26,17 @@ struct Constants {
         return APIKey
     }
     
+    static func getYouTubeAPIKey() -> String {
+        guard let YouTubeAPIKey = ProcessInfo.processInfo.environment["API_YOUTUBE_KEY"] else {
+            fatalError("Api key not found in environment variables")
+        }
+        return YouTubeAPIKey
+    }
+    
+    static let httpMethod = "GET"
     static let baseImageURL = "https://image.tmdb.org/t/p/w500"
-    
     static let baseURL = "https://api.themoviedb.org/3/"
-    
+    static let baseYouTubeURL = "https://youtube.googleapis.com/youtube/v3/search?"
 }
 
 enum APIError: Error {
@@ -42,9 +47,7 @@ class APICaller {
     
     static let shared = APICaller()
     
-   
-    
-    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+   func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
        
         let urlString = "\(Constants.baseURL)trending/all/day?language=en-US"
         
@@ -217,6 +220,24 @@ class APICaller {
             }
         }
         task.resume()
+    }
+    
+    func getMovie(with query: String, completion: @escaping (Result<VideoElement, Error>) -> Void) {
+        guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else { return }
+        guard let url = URL(string: "\(Constants.baseYouTubeURL)q=\(query)&key=\(Constants.getYouTubeAPIKey())") else { return }
+        let task = URLSession.shared.dataTask(with: url) { data, _, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            do {
+                let results = try JSONDecoder().decode(YouTubeSearchResponse.self, from: data)
+                completion(.success(results.items[0]))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
         
     }
+    
 }
