@@ -108,7 +108,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
     }
-    
 }
 
 // MARK: -  UISearchResultsUpdating
@@ -121,6 +120,8 @@ extension SearchViewController: UISearchResultsUpdating {
                   query.trimmingCharacters(in: .whitespaces).count >= 3,
                   let resultController = searchController.searchResultsController as? SearchResultsViewController else { return }
         
+        resultController.delegate = self
+        
         APICaller.shared.search(with: query) { results in
             DispatchQueue.main.async {
                 switch results {
@@ -131,6 +132,16 @@ extension SearchViewController: UISearchResultsUpdating {
                     print(error.localizedDescription)
                 }
             }
+        }
+    }
+}
+
+extension SearchViewController: SearchResultsViewControllerDelegate {
+    func searchResultsViewControllerDidTapItem(_ viewModel: TitlePreviewViewModel) {
+        DispatchQueue.main.async { [weak self] in
+            let vc = TitlePreviewViewController()
+            vc.configure(with: viewModel)
+            self?.navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
