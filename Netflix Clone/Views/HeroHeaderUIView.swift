@@ -64,7 +64,7 @@ class HeroHeaderUIView: UIView {
     
   
     
-    //MARK: - Private Methods 
+    //MARK: - Methods
     
     // This func make our image origin color above and dark color below
     private func addGradient() {
@@ -91,5 +91,10 @@ class HeroHeaderUIView: UIView {
         ]
         NSLayoutConstraint.activate(playButtonConstraints)
         NSLayoutConstraint.activate(downloadButtonConstraints)
+    }
+    
+    public func configure(with model: TitleViewModel) {
+        guard let url = URL(string: Constants.baseImageURL + model.posterURL) else { return }
+        heroImageView.sd_setImage(with: url)
     }
 }

@@ -19,6 +19,8 @@ class HomeViewController: UIViewController {
     // MARK: - Properties
     let sectionTitles: [String] = ["Trending Movies", "Trending TV", "Popular", "Upcoming Movies", "Top Rated"]
     
+    private var randomTrandingMovie: Title?
+    private var headerView: HeroHeaderUIView?
     
     private let homeFeedTable: UITableView = {
         let table = UITableView(frame: .zero, style: .grouped)
@@ -39,8 +41,10 @@ class HomeViewController: UIViewController {
         configureNavigatorBar()
         
        
-        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeFeedTable.tableHeaderView = headerView
+        
+        configureHeaderView()
        
     }
     
@@ -60,6 +64,19 @@ class HomeViewController: UIViewController {
             UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style: .done, target: self, action: nil)
         ]
         navigationController?.navigationBar.tintColor = .white
+    }
+    
+    private func configureHeaderView() {
+        APICaller.shared.getTrendingMovies { [weak self] results in
+            switch results {
+            case.success(let titles):
+                let title = titles.randomElement()
+                self?.randomTrandingMovie = title
+                self?.headerView?.configure(with: TitleViewModel(titleName: title?.original_title ?? "", posterURL: title?.poster_path ?? ""))
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
