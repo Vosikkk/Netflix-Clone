@@ -9,8 +9,12 @@ import UIKit
 
 class SearchResultsViewController: UIViewController {
   
+    
+    // MARK: - Properties
+    
     public var titles: [Title] = [Title]()
     
+    // Because we want to recieved width of the screen(so lazy help us)
     public lazy var searchResultsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         if let screenWidth = UIScreen.current?.bounds.width {
@@ -22,7 +26,7 @@ class SearchResultsViewController: UIViewController {
         return collectionView
     }()
     
-    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -32,14 +36,15 @@ class SearchResultsViewController: UIViewController {
         
     }
     
-
+    // Update between different screens
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         searchResultsCollectionView.frame = view.bounds
-        
     }
     
 }
+
+// MARK: - UICollectionViewDelegate, UICollectionViewDataSource
 extension SearchResultsViewController: UICollectionViewDelegate, UICollectionViewDataSource {
    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

@@ -7,9 +7,19 @@
 
 import UIKit
 
+// MARK: - Protocol
+protocol CollectionViewTableViewCellDelegate: AnyObject {
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel)
+}
+
 class CollectionViewTableViewCell: UITableViewCell {
 
+    
+    // MARK: - Properties
+    
     static let identifier = "CollectionViewTableViewCell"
+    
+    weak var delegate: CollectionViewTableViewCellDelegate?
     
     private var titles: [Title] = [Title]()
     
@@ -23,6 +33,7 @@ class CollectionViewTableViewCell: UITableViewCell {
     }()
     
     
+    // MARK: - Initialization
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -37,13 +48,16 @@ class CollectionViewTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Layout
     
     override func layoutSubviews() {
         super.layoutSubviews()
         collectionView.frame = contentView.bounds
     }
     
+    // MARK: - super func
     
+    // We get new info about films
     public func configure(with titles: [Title]) {
         self.titles = titles
         DispatchQueue.main.async { [weak self] in
@@ -51,6 +65,8 @@ class CollectionViewTableViewCell: UITableViewCell {
         }
     }
 }
+
+// MARK: - UICollectionViewDelegate, UICollectionViewDataSource
 
 extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource {
     
@@ -60,13 +76,15 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TitleCollectionViewCell.identifier, for: indexPath) as? TitleCollectionViewCell else { return UICollectionViewCell() }
-        
+        // Received path to the poster of the film
         guard let model = titles[indexPath.row].poster_path else { return UICollectionViewCell() }
         
+        // Make it beautiful
         cell.configure(with: model)
         
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
@@ -74,11 +92,17 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
         guard let titleName = title.original_title ?? title.original_name else {
             return
         }
-        
-        APICaller.shared.getMovie(with: titleName + " trailer") { results in
+        // You tap on the cell, so make request to the youtube, receive info to the HOmeController
+        APICaller.shared.getMovie(with: titleName + " trailer") { [weak self] results in
             switch results {
             case .success(let videoElement):
-                print(videoElement.id)
+               
+                let title = self?.titles[indexPath.row]
+                guard let titleOverview = title?.overview else { return }
+                guard let strongSelf = self else { return }
+                let model = TitlePreviewViewModel(title: titleName, youtubeView: videoElement, titleOverview: titleOverview)
+                self?.delegate?.collectionViewTableViewCellDidTapCell(strongSelf, viewModel: model)
+            
             case .failure(let error):
                 print(error.localizedDescription)
             }

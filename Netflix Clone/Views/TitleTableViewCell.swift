@@ -9,6 +9,8 @@ import UIKit
 
 class TitleTableViewCell: UITableViewCell {
 
+    // MARK: Properties
+    
     static let identifier = "TitleTableViewCell"
     
     private let playTitlesButton: UIButton = {
@@ -36,6 +38,7 @@ class TitleTableViewCell: UITableViewCell {
     }()
     
     
+    // MARK: - Initialization
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -51,6 +54,8 @@ class TitleTableViewCell: UITableViewCell {
     }
     
     
+    
+    // MARK: - Methods
     private func applyConstraints() {
         let titlesPosterConstraints = [
             titlesPoster.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -74,6 +79,7 @@ class TitleTableViewCell: UITableViewCell {
         
     }
     
+    // MARK: - Again super func
     public func configure(with model: TitleViewModel) {
         guard let url = URL(string: Constants.baseImageURL + model.posterURL) else { return }
         titlesPoster.sd_setImage(with: url)

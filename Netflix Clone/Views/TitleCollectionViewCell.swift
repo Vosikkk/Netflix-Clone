@@ -12,6 +12,7 @@ import SDWebImage
 
 class TitleCollectionViewCell: UICollectionViewCell {
     
+    // MARK: - Properties
     static let identifier = "TitleCollectionViewCell"
     
     private let posterImageView: UIImageView = {
@@ -22,6 +23,8 @@ class TitleCollectionViewCell: UICollectionViewCell {
         
     }()
     
+    // MARK: - Initialization
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         contentView.addSubview(posterImageView)
@@ -31,11 +34,16 @@ class TitleCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Layout
+    // Set our image(poster) on all screen even when our cell changing size
     override func layoutSubviews() {
         super.layoutSubviews()
         posterImageView.frame = contentView.bounds
     }
     
+    
+    // MARK: - super func
+    // receive URL using TMBD api and set poster as backgroud for our cell
     public func configure(with model: String){
         guard let url = URL(string: Constants.baseImageURL + model) else { return }
         posterImageView.sd_setImage(with: url)

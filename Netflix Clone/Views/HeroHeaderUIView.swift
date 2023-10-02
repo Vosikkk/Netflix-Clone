@@ -9,6 +9,7 @@ import UIKit
 
 class HeroHeaderUIView: UIView {
 
+    // MARK: - Properties
     
     private let downloadButton: UIButton = {
         let button = UIButton()
@@ -41,6 +42,7 @@ class HeroHeaderUIView: UIView {
         return imageView
     }()
     
+    // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(heroImageView)
@@ -50,15 +52,19 @@ class HeroHeaderUIView: UIView {
         applyConstraints()
     }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
         heroImageView.frame = bounds
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+  
     
+    //MARK: - Private Methods 
     
     // This func make our image origin color above and dark color below
     private func addGradient() {

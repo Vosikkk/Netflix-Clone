@@ -7,10 +7,10 @@
 
 import Foundation
 
+// This model save path to the video on youtube
+
 struct YouTubeSearchResponse: Codable {
     let items: [VideoElement]
-    
-    
 }
 struct VideoElement: Codable {
     let id: IDVideoElement

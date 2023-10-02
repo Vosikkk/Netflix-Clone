@@ -15,6 +15,8 @@ enum Sections: Int {
 
 class HomeViewController: UIViewController {
     
+    
+    // MARK: - Properties
     let sectionTitles: [String] = ["Trending Movies", "Trending TV", "Popular", "Upcoming Movies", "Top Rated"]
     
     
@@ -25,7 +27,8 @@ class HomeViewController: UIViewController {
     }()
     
     
-    
+    // MARK: - Lifecycle
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(homeFeedTable)
@@ -35,9 +38,7 @@ class HomeViewController: UIViewController {
         
         configureNavigatorBar()
         
-        APICaller.shared.getMovie(with: "Harry Potter") { results in
-            //
-        }
+       
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
         homeFeedTable.tableHeaderView = headerView
        
@@ -48,6 +49,8 @@ class HomeViewController: UIViewController {
         homeFeedTable.frame = view.bounds
     }
     
+    // MARK: - Private Methods
+    
     private func configureNavigatorBar() {
         var image = UIImage(named: "netflixLogo")
         image = image?.withRenderingMode(.alwaysOriginal)
@@ -56,13 +59,11 @@ class HomeViewController: UIViewController {
             UIBarButtonItem(image: UIImage(systemName: "person"), style: .done, target: self, action: nil),
             UIBarButtonItem(image: UIImage(systemName: "play.rectangle"), style: .done, target: self, action: nil)
         ]
-        
         navigationController?.navigationBar.tintColor = .white
     }
-    
-   
 }
 
+// MARK: - UITableViewDelegate & UITableViewDataSource
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -77,6 +78,9 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else { return UITableViewCell() }
+        
+        // Assign this controller as delegate
+        cell.delegate = self
         
         switch indexPath.section {
         case Sections.TrendingMovies.rawValue:
@@ -153,8 +157,22 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        // If we go down, bar disappear, when go up it's appear)
         let defaultOffset = view.safeAreaInsets.top
         let offset = scrollView.contentOffset.y + defaultOffset
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
+    }
+}
+
+extension HomeViewController: CollectionViewTableViewCellDelegate {
+    
+    func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel) {
+       // We tap on the cell and we want to see youtube video and info about the film so let's go
+        DispatchQueue.main.async { [weak self] in
+            let vc = TitlePreviewViewController()
+            vc.configure(with: viewModel)
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }

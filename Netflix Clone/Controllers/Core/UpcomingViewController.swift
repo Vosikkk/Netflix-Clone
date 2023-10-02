@@ -9,6 +9,7 @@ import UIKit
 
 class UpcomingViewController: UIViewController {
 
+    // MARK: - Properties
     private var titles: [Title] = [Title]()
     
     private let upcomingTable: UITableView = {
@@ -18,6 +19,7 @@ class UpcomingViewController: UIViewController {
     }()
     
     
+    // MARK: Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -37,6 +39,7 @@ class UpcomingViewController: UIViewController {
         upcomingTable.frame = view.bounds
     }
     
+    // MARK: Methods
     private func fetchUpcoming() {
         APICaller.shared.getUpcomingMovies { [weak self] results in
             switch results {
@@ -51,6 +54,9 @@ class UpcomingViewController: UIViewController {
         }
     }
 }
+
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
 
 extension UpcomingViewController: UITableViewDelegate, UITableViewDataSource {
     

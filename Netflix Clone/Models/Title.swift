@@ -7,7 +7,7 @@
 
 import Foundation
 
-
+// Model which accordance to json file received from database(TMBD)
 
 struct TrendingTitleResponse: Codable {
     let results: [Title]
@@ -28,6 +28,7 @@ struct Title: Codable {
 
 }
 
+// Some another implementation
 
 // struct TrendingMoviesResponse: Codable {
 //

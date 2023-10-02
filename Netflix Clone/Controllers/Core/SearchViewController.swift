@@ -9,6 +9,9 @@ import UIKit
 
 class SearchViewController: UIViewController {
 
+    
+    // MARK: - Properties
+   
     private var titles: [Title] = [Title]()
     
     private let discoverTable: UITableView = {
@@ -24,6 +27,9 @@ class SearchViewController: UIViewController {
         return controller
     }()
     
+    
+    // MARK: Lifecycle
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -45,6 +51,8 @@ class SearchViewController: UIViewController {
         discoverTable.frame = view.bounds
     }
     
+    
+    //MARK: - Fetch Func
     private func fetchDiscoverMovies() {
         APICaller.shared.getDiscoverMovies { [weak self] result in
             switch result {
@@ -59,6 +67,9 @@ class SearchViewController: UIViewController {
         }
     }
 }
+
+
+// MARK: - UITableViewDelegate, UITableViewDataSource
 
 extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     
@@ -81,6 +92,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     
 }
 
+// MARK: -  UISearchResultsUpdating
 extension SearchViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {

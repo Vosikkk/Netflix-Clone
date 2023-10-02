@@ -8,6 +8,7 @@
 import Foundation
 
 struct Constants {
+    
     static let headers = [
         "accept": "application/json",
         "Authorization": "Bearer \(getAuthToken())"
@@ -45,9 +46,13 @@ enum APIError: Error {
 
 class APICaller {
     
-    static let shared = APICaller()
+   static let shared = APICaller()
+   
     
-   func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+    
+    // MARK: - Functions which get information about movie,tv show, traillers on youtube and give our cells, controllers to show you this magic))
+   
+    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
        
         let urlString = "\(Constants.baseURL)trending/all/day?language=en-US"
         
@@ -69,7 +74,6 @@ class APICaller {
                 completion(.failure(APIError.failedToGetData))
             }
         }
-        
         task.resume()
     }
     
@@ -96,7 +100,6 @@ class APICaller {
                 completion(.failure(APIError.failedToGetData))
             }
         }
-        
         task.resume()
     }
 
@@ -199,7 +202,6 @@ class APICaller {
                 completion(.failure(APIError.failedToGetData))
             }
         }
-        
         task.resume()
     }
     
@@ -237,7 +239,5 @@ class APICaller {
             }
         }
         task.resume()
-        
     }
-    
 }
