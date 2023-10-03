@@ -38,7 +38,6 @@ class HeroHeaderUIView: UIView {
         imageView.contentMode = .scaleAspectFill
         // cut excessive content
         imageView.clipsToBounds = true
-        imageView.image = UIImage(named: "image")
         return imageView
     }()
     
@@ -60,6 +59,13 @@ class HeroHeaderUIView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         heroImageView.frame = bounds
+        if let sublayers = layer.sublayers {
+                for layer in sublayers {
+                    if layer is CAGradientLayer {
+                        layer.frame = bounds
+                }
+            }
+        }
     }
     
   
@@ -75,6 +81,7 @@ class HeroHeaderUIView: UIView {
         ]
         gradientLayer.frame = bounds
         layer.addSublayer(gradientLayer)
+        
     }
     
     private func applyConstraints() {

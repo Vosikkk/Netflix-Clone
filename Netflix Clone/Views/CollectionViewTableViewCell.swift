@@ -10,6 +10,7 @@ import UIKit
 // MARK: - Protocol
 protocol CollectionViewTableViewCellDelegate: AnyObject {
     func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel)
+    func collectionViewTableViewCellDidDownLoadDuplicate()
 }
 
 class CollectionViewTableViewCell: UITableViewCell {
@@ -65,17 +66,20 @@ class CollectionViewTableViewCell: UITableViewCell {
         }
     }
     
-    private func downloadTitleAt(indexPath: [IndexPath]) {
-        if let indexPath = indexPath.first {
-            DataPersistenceManager.shared.downloadTitle(with: titles[indexPath.row]) { result in
+    private func downloadTitleAt(indexPath: IndexPath) {
+        DataPersistenceManager.shared.downloadTitle(with: titles[indexPath.row]) { [weak self] result in
                 switch result {
                 case .success():
                     NotificationCenter.default.post(name: NSNotification.Name("Downloaded"), object: nil)
+                    NotificationCenter.default.post(name: NSNotification.Name("Download Completed"), object: nil)
                 case.failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        }
+                    if let dataError = error as? DatabaseError, dataError == .duplicateItem {
+                        self?.delegate?.collectionViewTableViewCellDidDownLoadDuplicate()
+                    } else {
+                        print(error.localizedDescription)
+               }
+           }
+       }
     }
 }
 
@@ -128,9 +132,11 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate, UICollectionVie
         
         let configure = UIContextMenuConfiguration(
             identifier: nil,
-            previewProvider: nil) { [weak self] _ in
+            previewProvider: nil) { _ in
                 let downloadAction = UIAction(title: "Download") { _ in
-                    self?.downloadTitleAt(indexPath: indexPaths)
+                    if let indexPath = indexPaths.first {
+                        self.downloadTitleAt(indexPath: indexPath)
+                    }
                 }
                 return UIMenu(options: .displayInline, children: [downloadAction])
         }

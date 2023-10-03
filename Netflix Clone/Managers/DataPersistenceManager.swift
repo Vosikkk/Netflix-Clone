@@ -9,13 +9,17 @@ import Foundation
 import UIKit
 import CoreData
 
+enum DatabaseError: Error {
+    case failedToSaveData
+    case failedToFetchData
+    case failedToDeleteData
+    case duplicateItem
+}
+
+
 class DataPersistenceManager {
     
-    enum DatabaseError: Error {
-        case failedToSaveData
-        case failedToFetchData
-        case failedToDeleteData
-    }
+   
     
     static let shared = DataPersistenceManager()
     
@@ -24,6 +28,23 @@ class DataPersistenceManager {
             return
         }
         let context = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<TitleItem>(entityName: "TitleItem")
+            fetchRequest.predicate = NSPredicate(format: "id == %lld", Int64(model.id))
+        
+        do {
+            let existingItems = try context.fetch(fetchRequest)
+            if let _ = existingItems.first {
+                completion(.failure(DatabaseError.duplicateItem))
+                return
+            }
+            
+        } catch {
+            completion(.failure(DatabaseError.failedToFetchData))
+            return
+        }
+        
+        
         let item = TitleItem(context: context)
         item.id = Int64(model.id)
         item.media_type = model.media_type
@@ -42,6 +63,7 @@ class DataPersistenceManager {
         } catch {
             completion(.failure(DatabaseError.failedToSaveData))
         }
+       
     }
     
     func fetchTitlesFromDataBase(completion: @escaping (Result<[TitleItem], Error>) -> Void) {

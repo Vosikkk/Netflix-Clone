@@ -27,7 +27,14 @@ class HomeViewController: UIViewController {
         table.register(CollectionViewTableViewCell.self, forCellReuseIdentifier: CollectionViewTableViewCell.identifier)
         return table
     }()
+   
+    private var bannerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
     
+    private var duplicateMovieDownload = false
     
     // MARK: - Lifecycle
    
@@ -41,10 +48,11 @@ class HomeViewController: UIViewController {
         configureNavigatorBar()
         
        
-        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 400))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height / 2))
         homeFeedTable.tableHeaderView = headerView
         
         configureHeaderView()
+        NotificationCenter.default.addObserver(self, selector: #selector(downloadComleted), name: NSNotification.Name("Download Completed"), object: nil)
        
     }
     
@@ -56,7 +64,7 @@ class HomeViewController: UIViewController {
     // MARK: - Private Methods
     
     private func configureNavigatorBar() {
-        var image = UIImage(named: "netflixLogo")
+        var image = UIImage(named: "netflix_logo")
         image = image?.withRenderingMode(.alwaysOriginal)
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: image, style: .done, target: self, action: nil)
         navigationItem.rightBarButtonItems = [
@@ -77,6 +85,26 @@ class HomeViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
+    }
+    @objc func downloadComleted() {
+           bannerView.frame = CGRect(x: 0, y: -100, width: view.frame.width, height: 100)
+           view.addSubview(bannerView)
+       
+           // Анімація виведення банера
+           UIView.animate(withDuration: 0.3) {
+               self.bannerView.frame.origin.y = 0
+           }
+        
+        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] timer in
+            self?.hideBanner()
+           }
+    }
+    
+    private func hideBanner() {
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            self?.bannerView.frame.origin.y = -100
+        }
+        bannerView.removeFromSuperview()
     }
 }
 
@@ -183,6 +211,20 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 extension HomeViewController: CollectionViewTableViewCellDelegate {
+    
+    func collectionViewTableViewCellDidDownLoadDuplicate() {
+        if !duplicateMovieDownload {
+            let alert = UIAlertController(title: "Download Failed",
+                                          message:"You already have this movie in your downloads.\nDo you want to show this warning in the future?",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Keep Warning", style: .default))
+            alert.addAction(UIAlertAction(title: "Stop Warning", style: .destructive, handler: { action in
+                self.duplicateMovieDownload = true
+            }))
+            present(alert, animated: true)
+        }
+    }
+    
     
     func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel) {
        // We tap on the cell and we want to see youtube video and info about the film so let's go

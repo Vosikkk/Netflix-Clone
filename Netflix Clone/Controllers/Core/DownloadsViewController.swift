@@ -32,6 +32,9 @@ class DownloadsViewController: UIViewController {
         downloadedTable.delegate = self
         downloadedTable.dataSource = self
         fetchLocalStorageForDownload()
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("Downloaded"), object: nil, queue: nil) { _ in
+            self.fetchLocalStorageForDownload()
+        }
     }
     
     private func fetchLocalStorageForDownload() {
@@ -46,10 +49,13 @@ class DownloadsViewController: UIViewController {
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        fetchLocalStorageForDownload()
-    }
+    
+    
+    // Another way update info of downloads during working of the pogram
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        fetchLocalStorageForDownload()
+//    }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -83,16 +89,15 @@ extension DownloadsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         switch editingStyle {
         case .delete:
-            tableView.performBatchUpdates {
-                //titles.remove(at: indexPath.row)
-                DataPersistenceManager.shared.deleteTitleWith(model: titles[indexPath.row]) { result in
-                    switch result {
-                    case .success():
-                        print("OK")
-                    case .failure(let error):
-                        print(error.localizedDescription)
-                    }
+            DataPersistenceManager.shared.deleteTitleWith(model: titles[indexPath.row]) { result in
+                switch result {
+                case .success():
+                    print("OK")
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
+            }
+            tableView.performBatchUpdates {
                 tableView.deleteRows(at: [indexPath], with: .fade)
                 titles.remove(at: indexPath.row)
             }
@@ -100,5 +105,22 @@ extension DownloadsViewController: UITableViewDelegate, UITableViewDataSource {
             break
         }
     }
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let title = titles[indexPath.row]
+        guard let titleName = title.original_title ?? title.original_name else { return }
+        
+        APICaller.shared.getMovie(with: titleName) { [weak self] results in
+            switch results {
+            case .success(let videoElement):
+                DispatchQueue.main.async {
+                    let vc = TitlePreviewViewController()
+                    vc.configure(with: TitlePreviewViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? "" ))
+                    self?.navigationController?.pushViewController(vc, animated: true)
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
 }
