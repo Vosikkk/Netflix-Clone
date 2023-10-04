@@ -31,3 +31,8 @@ extension UIScreen {
         UIWindow.current?.screen
     }
 }
+extension RawRepresentable {
+    static prefix func ~(rhs: Self) -> Self.RawValue {
+        rhs.rawValue
+    }
+}

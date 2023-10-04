@@ -128,7 +128,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         cell.delegate = self
         
         switch indexPath.section {
-        case Sections.TrendingMovies.rawValue:
+        case ~Sections.TrendingMovies:
             APICaller.shared.getTrendingMovies { results in
                 switch results {
                 case .success(let titles):
@@ -138,7 +138,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                 }
             }
             
-        case Sections.TrendingTV.rawValue:
+        case ~Sections.TrendingTV:
             APICaller.shared.getTrendingTVs { results in
                 switch results {
                 case .success(let titles):
@@ -147,7 +147,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                     print(error.localizedDescription)
                 }
             }
-        case Sections.Popular.rawValue:
+        case ~Sections.Popular:
             APICaller.shared.getPopular { results in
                 switch results {
                 case .success(let titles):
@@ -156,7 +156,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                     print(error.localizedDescription)
                 }
             }
-        case Sections.Upcoming.rawValue:
+        case ~Sections.Upcoming:
             APICaller.shared.getUpcomingMovies { results in
                 switch results {
                 case .success(let titles):
@@ -165,7 +165,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                     print(error.localizedDescription)
                 }
             }
-        case Sections.TopRated.rawValue:
+        case ~Sections.TopRated:
             APICaller.shared.getTopRated { results in
                 switch results {
                 case .success(let titles):

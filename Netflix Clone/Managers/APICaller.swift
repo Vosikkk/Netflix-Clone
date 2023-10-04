@@ -52,157 +52,30 @@ class APICaller {
     
     // MARK: - Functions which get information about movie,tv show, traillers on youtube and give our cells, controllers to show you this magic))
    
-    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-       
-        let urlString = "\(Constants.baseURL)trending/all/day?language=en-US"
-        
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        task.resume()
-    }
     
+    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+        performAPIRequest(endpoint: "trending/all/day?language=en-US", completion: completion)
+    }
     
     func getTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void) {
-    
-        let urlString = "\(Constants.baseURL)trending/tv/day?language=en-US"
-        
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        task.resume()
+        performAPIRequest(endpoint: "trending/tv/day?language=en-US", completion: completion)
     }
-
-    
-
     
     func getUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        
-        let urlString = "\(Constants.baseURL)movie/upcoming?language=en-US&page=1"
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        
-        task.resume()
+        performAPIRequest(endpoint: "movie/upcoming?language=en-US&page=1", completion: completion)
     }
-    
+
     func getPopular(completion: @escaping (Result<[Title], Error>) -> Void) {
-        
-        let urlString = "\(Constants.baseURL)movie/popular?language=en-US&page=1"
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        
-        task.resume()
+        performAPIRequest(endpoint: "movie/popular?language=en-US&page=1", completion: completion)
     }
     
     func getTopRated(completion: @escaping (Result<[Title], Error>) -> Void) {
-        
-        let urlString = "\(Constants.baseURL)movie/top_rated?language=en-US&page=1"
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        
-        task.resume()
+        performAPIRequest(endpoint: "movie/top_rated?language=en-US&page=1", completion: completion)
     }
     
-   
     func getDiscoverMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        let urlString = "\(Constants.baseURL)discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc"
-        guard let url = URL(string: urlString) else {
-            completion(.failure(NSError(domain: "Invalid URL", code: 0, userInfo: nil)))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = Constants.httpMethod
-        request.allHTTPHeaderFields = Constants.headers
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
-            }
-        }
-        task.resume()
+        performAPIRequest(endpoint: "discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc",
+                          completion: completion)
     }
     
     func search(with query: String, completion: @escaping (Result<[Title], Error>) -> Void) {
@@ -240,4 +113,37 @@ class APICaller {
         }
         task.resume()
     }
+    
+    
+    
+    private func buildURL(endpoint: String) -> URL? {
+        let urlString = Constants.baseURL + endpoint
+        return URL(string: urlString)
+    }
+    
+    private func performAPIRequest(endpoint: String, completion: @escaping (Result<[Title], Error>) -> Void) {
+        guard let url = buildURL(endpoint: endpoint) else {
+            completion(.failure(APIError.failedToGetData))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = Constants.httpMethod
+        request.allHTTPHeaderFields = Constants.headers
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else {
+                completion(.failure(APIError.failedToGetData))
+                return
+            }
+            do {
+                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: data)
+                completion(.success(results.results))
+            } catch {
+                completion(.failure(APIError.failedToGetData))
+            }
+        }
+        task.resume()
+    }
+    
 }
