@@ -50,6 +50,7 @@ class TitlePreviewViewController: UIViewController {
    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.addSubview(webView)
         view.addSubview(overviewLabel)
         view.addSubview(downloadButton)
@@ -102,5 +103,4 @@ class TitlePreviewViewController: UIViewController {
         guard let url = URL(string: "https://www.youtube.com/embed/\(model.youtubeView.id.videoId)") else { return }
         webView.load(URLRequest(url: url))
     }
-    
 }

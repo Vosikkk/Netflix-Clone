@@ -20,7 +20,7 @@ class HomeViewController: UIViewController {
     let sectionTitles: [String] = ["Trending Movies", "Trending TV", "Popular", "Upcoming Movies", "Top Rated"]
     
     private var randomTrandingMovie: Title?
-    private var headerView: HeroHeaderUIView?
+    private var headerView: HeroHeaderUIView? 
     
     private let homeFeedTable: UITableView = {
         let table = UITableView(frame: .zero, style: .grouped)
@@ -28,11 +28,7 @@ class HomeViewController: UIViewController {
         return table
     }()
    
-    private var bannerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .white
-        return view
-    }()
+    private var notificationView: CustomNotitficationUIView?
     
     private var duplicateMovieDownload = false
     
@@ -47,20 +43,20 @@ class HomeViewController: UIViewController {
         
         configureNavigatorBar()
         
+        configureHeaderView()
        
-        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height / 2))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 500))
         homeFeedTable.tableHeaderView = headerView
-        
         configureHeaderView()
         NotificationCenter.default.addObserver(self, selector: #selector(downloadComleted), name: NSNotification.Name("Download Completed"), object: nil)
-       
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         homeFeedTable.frame = view.bounds
+        
     }
-    
+   
     // MARK: - Private Methods
     
     private func configureNavigatorBar() {
@@ -87,25 +83,25 @@ class HomeViewController: UIViewController {
         }
     }
     @objc func downloadComleted() {
-           bannerView.frame = CGRect(x: 0, y: -100, width: view.frame.width, height: 100)
-           view.addSubview(bannerView)
-       
-           // Анімація виведення банера
-           UIView.animate(withDuration: 0.3) {
-               self.bannerView.frame.origin.y = 0
-           }
+        notificationView = CustomNotitficationUIView(frame: CGRect(x: 0, y: -50, width: view.bounds.width, height: 50))
+        view.addSubview(notificationView!)
         
-        Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] timer in
-            self?.hideBanner()
+        let animator = UIViewPropertyAnimator(duration: 0.25, curve: .easeOut) {
+               self.notificationView?.frame.origin.y = 50
            }
-    }
-    
-    private func hideBanner() {
-        UIView.animate(withDuration: 0.3) { [weak self] in
-            self?.bannerView.frame.origin.y = -100
-        }
-        bannerView.removeFromSuperview()
-    }
+           animator.addCompletion { _ in
+              self.notificationView?.animateCheckMark {
+                   print("ok")
+                   UIView.animate(withDuration: 0.2, delay: 0.2, options: [.curveEaseIn], animations: {
+                       self.notificationView?.frame.origin.y = -50
+                   }, completion: { _ in
+                       self.notificationView?.removeFromSuperview()
+                       print("notifi disappear")
+                   })
+               }
+           }
+           animator.startAnimation()
+       }
 }
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
@@ -194,11 +190,19 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else { return }
         var content = header.defaultContentConfiguration()
-        content.secondaryText = sectionTitles[section].capitalizeFirstLetter()
-        content.secondaryTextProperties.font = .systemFont(ofSize: 18, weight: .semibold)
-        content.directionalLayoutMargins = .init(top: 0, leading: 0, bottom: 5, trailing: 0)
-        content.secondaryTextProperties.color = .white
-        header.contentConfiguration = content
+           content.secondaryText = sectionTitles[section].capitalizeFirstLetter()
+           content.secondaryTextProperties.font = .systemFont(ofSize: 18, weight: .semibold)
+           content.directionalLayoutMargins = .init(top: 0, leading: 0, bottom: 5, trailing: 0)
+           
+           if traitCollection.userInterfaceStyle == .dark {
+               // dark
+               content.secondaryTextProperties.color = .white
+           } else {
+               // light
+               content.secondaryTextProperties.color = .black
+           }
+           
+           header.contentConfiguration = content
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
