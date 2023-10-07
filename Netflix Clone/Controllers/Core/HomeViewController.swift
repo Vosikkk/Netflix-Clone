@@ -32,6 +32,8 @@ class HomeViewController: UIViewController {
     
     private var duplicateMovieDownload = false
     
+    private var downLoadObserver: NSObjectProtocol?
+    
     // MARK: - Lifecycle
    
     override func viewDidLoad() {
@@ -48,13 +50,28 @@ class HomeViewController: UIViewController {
         headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 500))
         homeFeedTable.tableHeaderView = headerView
         configureHeaderView()
-        NotificationCenter.default.addObserver(self, selector: #selector(downloadComleted), name: NSNotification.Name("Download Completed"), object: nil)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         homeFeedTable.frame = view.bounds
         
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let observer = downLoadObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        downLoadObserver = NotificationCenter.default.addObserver(
+            forName: .DownloadedMovie,
+            object: nil,
+            queue: OperationQueue.main) { notification in
+            self.animateSuccessDownload()
+        }
     }
    
     // MARK: - Private Methods
@@ -82,7 +99,7 @@ class HomeViewController: UIViewController {
             }
         }
     }
-    @objc func downloadComleted() {
+     func animateSuccessDownload() {
         notificationView = CustomNotitficationUIView(frame: CGRect(x: 0, y: -50, width: view.bounds.width, height: 50))
         view.addSubview(notificationView!)
         

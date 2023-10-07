@@ -13,6 +13,8 @@ class DownloadsViewController: UIViewController {
     
     private var titles: [TitleItem] = [TitleItem]()
     
+    private var downLoadObserver: NSObjectProtocol?
+    
     private let downloadedTable: UITableView = {
         let tableView = UITableView()
         tableView.register(TitleTableViewCell.self, forCellReuseIdentifier: TitleTableViewCell.identifier)
@@ -32,7 +34,21 @@ class DownloadsViewController: UIViewController {
         downloadedTable.delegate = self
         downloadedTable.dataSource = self
         fetchLocalStorageForDownload()
-        NotificationCenter.default.addObserver(forName: NSNotification.Name("Downloaded"), object: nil, queue: nil) { _ in
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let obsrever = downLoadObserver {
+            NotificationCenter.default.removeObserver(obsrever)
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        downLoadObserver =  NotificationCenter.default.addObserver(
+            forName: .DownloadedMovie,
+            object: nil,
+            queue: OperationQueue.main) { _ in
             self.fetchLocalStorageForDownload()
         }
     }

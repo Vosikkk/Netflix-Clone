@@ -7,6 +7,13 @@
 
 import UIKit
 
+
+extension NSNotification.Name {
+    static let DownloadedMovie = Notification.Name("Downloaded")
+}
+
+
+
 // MARK: - Protocol
 protocol CollectionViewTableViewCellDelegate: AnyObject {
     func collectionViewTableViewCellDidTapCell(_ cell: CollectionViewTableViewCell, viewModel: TitlePreviewViewModel)
@@ -70,8 +77,7 @@ class CollectionViewTableViewCell: UITableViewCell {
         DataPersistenceManager.shared.downloadTitle(with: titles[indexPath.row]) { [weak self] result in
                 switch result {
                 case .success():
-                    NotificationCenter.default.post(name: NSNotification.Name("Downloaded"), object: nil)
-                    NotificationCenter.default.post(name: NSNotification.Name("Download Completed"), object: nil)
+                    NotificationCenter.default.post(name: .DownloadedMovie, object: nil)
                 case.failure(let error):
                     if let dataError = error as? DatabaseError, dataError == .duplicateItem {
                         self?.delegate?.collectionViewTableViewCellDidDownLoadDuplicate()
