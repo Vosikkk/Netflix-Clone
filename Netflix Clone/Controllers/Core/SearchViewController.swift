@@ -54,15 +54,15 @@ class SearchViewController: UIViewController {
     
     //MARK: - Fetch Func
     private func fetchDiscoverMovies() {
-        APICaller.shared.getDiscoverMovies { [weak self] result in
-            switch result {
-            case .success(let titles):
-                self?.titles = titles
+        Task {
+            do {
+                let titles = try await APICaller.shared.getDiscoverMovies()
+                self.titles = titles
                 DispatchQueue.main.async {
-                    self?.discoverTable.reloadData()
+                    self.discoverTable.reloadData()
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
+            } catch {
+                print(error)
             }
         }
     }

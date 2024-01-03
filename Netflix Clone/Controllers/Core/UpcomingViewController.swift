@@ -41,15 +41,15 @@ class UpcomingViewController: UIViewController {
     
     // MARK: Methods
     private func fetchUpcoming() {
-        APICaller.shared.getUpcomingMovies { [weak self] results in
-            switch results {
-            case .success(let titles):
-                self?.titles = titles
+        Task {
+            do {
+                let titles = try await APICaller.shared.getUpcomingMovies()
+                self.titles = titles
                 DispatchQueue.main.async {
-                    self?.upcomingTable.reloadData()
+                    self.upcomingTable.reloadData()
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
+            } catch {
+                print(error)
             }
         }
     }

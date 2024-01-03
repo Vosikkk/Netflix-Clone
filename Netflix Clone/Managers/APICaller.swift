@@ -53,29 +53,28 @@ class APICaller {
     // MARK: - Functions which get information about movie,tv show, traillers on youtube and give our cells, controllers to show you this magic))
    
     
-    func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "trending/all/day?language=en-US", completion: completion)
+    func getTrendingMovies() async throws -> [Title] {
+       try await performAPIRequestAsync(endPoint: "trending/all/day?language=en-US")
     }
     
-    func getTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "trending/tv/day?language=en-US", completion: completion)
+    func getTrendingTVs() async throws -> [Title] {
+        try await performAPIRequestAsync(endPoint: "trending/tv/day?language=en-US")
     }
     
-    func getUpcomingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "movie/upcoming?language=en-US&page=1", completion: completion)
+    func getUpcomingMovies() async throws -> [Title] {
+        try await performAPIRequestAsync(endPoint: "movie/upcoming?language=en-US&page=1")
     }
 
-    func getPopular(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "movie/popular?language=en-US&page=1", completion: completion)
+    func getPopular() async throws -> [Title] {
+        try await performAPIRequestAsync(endPoint: "movie/popular?language=en-US&page=1")
     }
     
-    func getTopRated(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "movie/top_rated?language=en-US&page=1", completion: completion)
+    func getTopRated() async throws -> [Title] {
+        try await performAPIRequestAsync(endPoint: "movie/top_rated?language=en-US&page=1")
     }
     
-    func getDiscoverMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        performAPIRequest(endpoint: "discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc",
-                          completion: completion)
+    func getDiscoverMovies() async throws -> [Title] {
+        try await performAPIRequestAsync(endPoint: "discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc")
     }
     
     func search(with query: String, completion: @escaping (Result<[Title], Error>) -> Void) {
@@ -120,6 +119,24 @@ class APICaller {
         let urlString = Constants.baseURL + endpoint
         return URL(string: urlString)
     }
+    
+    
+    
+    private func performAPIRequestAsync(endPoint: String) async throws -> [Title] {
+        try await withUnsafeThrowingContinuation { continuation in
+            performAPIRequest(endpoint: endPoint) { result in
+                switch result {
+                case .success(let titles):
+                    continuation.resume(returning: titles)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    
+    
     
     private func performAPIRequest(endpoint: String, completion: @escaping (Result<[Title], Error>) -> Void) {
         guard let url = buildURL(endpoint: endpoint) else {

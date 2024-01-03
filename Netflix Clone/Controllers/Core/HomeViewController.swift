@@ -44,12 +44,15 @@ class HomeViewController: UIViewController {
         homeFeedTable.dataSource = self
         
         configureNavigatorBar()
+        Task {
+            await configureHeaderView()
+        }
         
-        configureHeaderView()
-       
         headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 500))
         homeFeedTable.tableHeaderView = headerView
-        configureHeaderView()
+        Task {
+            await configureHeaderView()
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -87,16 +90,13 @@ class HomeViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .white
     }
     
-    private func configureHeaderView() {
-        APICaller.shared.getTrendingMovies { [weak self] results in
-            switch results {
-            case.success(let titles):
-                let title = titles.randomElement()
-                self?.randomTrandingMovie = title
-                self?.headerView?.configure(with: TitleViewModel(titleName: title?.original_title ?? "", posterURL: title?.poster_path ?? ""))
-            case.failure(let error):
-                print(error.localizedDescription)
-            }
+    private func configureHeaderView() async {
+        do {
+            let title = try await APICaller.shared.getTrendingMovies().randomElement()
+            randomTrandingMovie = title
+            headerView?.configure(with: TitleViewModel(titleName: title?.original_title ?? "", posterURL: title?.poster_path ?? ""))
+        } catch {
+            print(error)
         }
     }
      func animateSuccessDownload() {
@@ -113,12 +113,38 @@ class HomeViewController: UIViewController {
                        self.notificationView?.frame.origin.y = -50
                    }, completion: { _ in
                        self.notificationView?.removeFromSuperview()
-                       print("notifi disappear")
+                       print("notify disappear")
                    })
                }
            }
            animator.startAnimation()
        }
+    
+    
+    private func configureCell(for section: Sections, cell: CollectionViewTableViewCell) {
+        Task {
+            do {
+                var titles: [Title]
+                
+                switch section {
+                case .TrendingMovies:
+                    titles = try await APICaller.shared.getTrendingMovies()
+                case .TrendingTV:
+                    titles = try await APICaller.shared.getTrendingTVs()
+                case .Popular:
+                    titles = try await APICaller.shared.getPopular()
+                case .Upcoming:
+                    titles = try await APICaller.shared.getUpcomingMovies()
+                case .TopRated:
+                    titles = try await APICaller.shared.getTopRated()
+                }
+                
+                cell.configure(with: titles)
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
 
 // MARK: - UITableViewDelegate & UITableViewDataSource
@@ -140,53 +166,17 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         // Assign this controller as delegate
         cell.delegate = self
         
-        switch indexPath.section {
-        case ~Sections.TrendingMovies:
-            APICaller.shared.getTrendingMovies { results in
-                switch results {
-                case .success(let titles):
-                    cell.configure(with: titles)
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-            
-        case ~Sections.TrendingTV:
-            APICaller.shared.getTrendingTVs { results in
-                switch results {
-                case .success(let titles):
-                    cell.configure(with: titles)
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        case ~Sections.Popular:
-            APICaller.shared.getPopular { results in
-                switch results {
-                case .success(let titles):
-                    cell.configure(with: titles)
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        case ~Sections.Upcoming:
-            APICaller.shared.getUpcomingMovies { results in
-                switch results {
-                case .success(let titles):
-                    cell.configure(with: titles)
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
-        case ~Sections.TopRated:
-            APICaller.shared.getTopRated { results in
-                switch results {
-                case .success(let titles):
-                    cell.configure(with: titles)
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
+        switch Sections(rawValue: indexPath.section) {
+        case .TrendingMovies:
+            configureCell(for: .TrendingMovies, cell: cell)
+        case .TrendingTV:
+            configureCell(for: .TrendingTV, cell: cell)
+        case .Popular:
+            configureCell(for: .Popular, cell: cell)
+        case .Upcoming:
+            configureCell(for: .Upcoming, cell: cell)
+        case .TopRated:
+            configureCell(for: .TopRated, cell: cell)
         default:
             return UITableViewCell()
         }
