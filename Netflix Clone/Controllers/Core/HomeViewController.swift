@@ -7,15 +7,15 @@
 
 import UIKit
 
-enum Sections: Int {
-    case TrendingMovies, TrendingTV, Popular, Upcoming, TopRated
-}
-
 
 
 class HomeViewController: UIViewController {
     
-    
+    enum Sections: Int {
+        case TrendingMovies, TrendingTV, Popular, Upcoming, TopRated
+    }
+
+
     // MARK: - Properties
     let sectionTitles: [String] = ["Trending Movies", "Trending TV", "Popular", "Upcoming Movies", "Top Rated"]
     
@@ -34,6 +34,7 @@ class HomeViewController: UIViewController {
     
     private var downLoadObserver: NSObjectProtocol?
     
+    
     // MARK: - Lifecycle
    
     override func viewDidLoad() {
@@ -42,7 +43,6 @@ class HomeViewController: UIViewController {
         view.backgroundColor = .systemBackground
         homeFeedTable.delegate = self
         homeFeedTable.dataSource = self
-        
         configureNavigatorBar()
         Task {
             await configureHeaderView()
@@ -246,3 +246,4 @@ extension HomeViewController: CollectionViewTableViewCellDelegate {
         }
     }
 }
+

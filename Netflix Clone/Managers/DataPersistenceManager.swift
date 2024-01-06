@@ -20,7 +20,6 @@ enum DatabaseError: Error {
 class DataPersistenceManager {
     
    
-    
     static let shared = DataPersistenceManager()
     
     func downloadTitle(with model: Title, completion: @escaping (Result<Void, Error>) -> Void) {

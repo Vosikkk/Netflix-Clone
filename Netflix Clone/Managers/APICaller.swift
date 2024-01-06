@@ -44,7 +44,20 @@ enum APIError: Error {
     case failedToGetData
 }
 
-class APICaller {
+
+protocol APIManager {
+    func getTrendingMovies() async throws -> [Title]
+    func getTrendingTVs() async throws -> [Title]
+    func getUpcomingMovies() async throws -> [Title]
+    func getPopular() async throws -> [Title]
+    func getTopRated() async throws -> [Title]
+    func getDiscoverMovies() async throws -> [Title]
+}
+
+
+
+
+class APICaller: APIManager {
     
    static let shared = APICaller()
    
