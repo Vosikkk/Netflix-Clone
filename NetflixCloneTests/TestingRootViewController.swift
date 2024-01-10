@@ -16,12 +16,5 @@ class TestingRootViewController: UIViewController {
             
             
         }
-    
-    override func loadView() {
-        let label = UILabel()
-        label.text = "Running unit tests..."
-        label.textAlignment = .center
-        label.textColor = .white
-        view = label
-    }
+
 }
