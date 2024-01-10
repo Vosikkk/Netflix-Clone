@@ -7,9 +7,8 @@
 
 import XCTest
 @testable import Netflix_Clone
-final class UpcomingViewControllerTests: XCTestCase {
 
-    
+final class UpcomingViewControllerTests: XCTestCase {
     
     var sut: UpcomingViewController!
     
@@ -24,10 +23,33 @@ final class UpcomingViewControllerTests: XCTestCase {
         super.tearDown()
     }
     
-    func test_loadUpcomingViewController_shouldNotToBeNil() {
+    
+    func test_loadUpcomingViewController_shouldNotBeNil() {
         sut.loadViewIfNeeded()
         XCTAssertNotNil(sut)
     }
-  
-
+    
+    func test_titleOfViewController_titleShouldBeUpcoming() {
+        sut.loadViewIfNeeded()
+        XCTAssertEqual(sut.title, "Upcoming")
+    }
+    
+    
+    func test_tableViewAppearOnTheViewController_tableViewShouldNotBeNil() {
+        sut.viewDidLoad()
+        XCTAssertNotNil(sut.upcomingTable)
+    }
+    
+    func test_viewDidLayuotSubviews_tableFrameShouldBeAsViewFrameSize() {
+        sut.loadViewIfNeeded()
+        sut.viewDidLayoutSubviews()
+        XCTAssertEqual(sut.upcomingTable.frame.size, sut.view.bounds.size)
+    }
+    
+ 
+    
 }
+
+
+
+

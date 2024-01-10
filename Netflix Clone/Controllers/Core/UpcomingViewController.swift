@@ -9,10 +9,14 @@ import UIKit
 
 class UpcomingViewController: UIViewController {
 
-    // MARK: - Properties
-    private var titles: [Title] = [Title]()
     
-    private let upcomingTable: UITableView = {
+    
+    var tableViewReloadDataCalled = false
+    
+    // MARK: - Properties
+     var titles: [Title] = [Title]()
+    
+    let upcomingTable: UITableView = {
         let tableView = UITableView()
         tableView.register(TitleTableViewCell.self, forCellReuseIdentifier: TitleTableViewCell.identifier)
         return tableView
@@ -40,12 +44,15 @@ class UpcomingViewController: UIViewController {
     }
     
     // MARK: Methods
-    private func fetchUpcoming() {
+     func fetchUpcoming() {
         Task {
             do {
                 let titles = try await APICaller.shared.getUpcomingMovies()
                 self.titles = titles
                 DispatchQueue.main.async {
+                    #if DEBUG
+                    self.tableViewReloadDataCalled = true
+                    #endif
                     self.upcomingTable.reloadData()
                 }
             } catch {
